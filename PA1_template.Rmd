@@ -17,7 +17,9 @@ unzip('./activity.zip',list=FALSE)
 ## Read activity.csv.
 ####################################################################################################
 activity_df <- read.csv('./activity.csv')
+activity_df$Interval <- as.factor(activity_df$interval)
 activity_df$date <- as.Date(activity_df$date)
+str(activity_df)
 summary(activity_df$steps)
 ```
 
@@ -27,38 +29,53 @@ summary(activity_df$steps)
 1. CALCULATE the total NUMBER of STEPS taken per day
 1. If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
 1. Calculate and REPORT the mean and median of the total number of steps taken per day
+
 ```{r get_mean,echo=TRUE,results="asis"}
 daily_steps <- aggregate(list(Steps=activity_df$steps)
                         ,by=list(Date=activity_df$date)
                         ,FUN='sum',na.rm=TRUE)
+
+mean_steps <- mean(daily_steps$Steps,na.rm=TRUE)
+median_steps <- median(daily_steps$Steps,na.rm=TRUE)
 
 with(daily_steps
     ,hist(Steps
          ,col="yellow"
          )
     )
-abline(v = median(daily_steps$Steps), col = "magenta", lwd = 4)
-abline(v = mean(daily_steps$Steps), col = "blue", lwd = 4)
+abline(v = median_steps, col = "magenta", lwd = 4)
+abline(v = mean_steps, col = "blue", lwd = 4)
 
 ## Add legend
 legend("topright",lty,lwd=4
       ,legend=c("Median","Mean")
       ,col=c("magenta","blue")
       )
-
-## install.packages('xtable')
-library(xtable)
-xt1 <- xtable(data.frame(daily_steps))
-print(xt1,type='html')
-
-mean_steps <- mean(daily_steps$Steps,na.rm=TRUE)
-print(mean_steps)
 ```
+
+- The mean total number of steps taken per day is: `r mean_steps`
+- The median total number of steps taken per day is: `r median_steps`
 
 
 ## What is the average daily activity pattern?
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 1. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r activ_pattern,echo=TRUE,results="asis"}
+intvl_steps <- aggregate(list(Steps=activity_df$steps)
+                        ,by=list(Interval=activity_df$Interval)
+                        ,FUN='mean',na.rm=TRUE)
+
+with(intvl_steps
+    ,plot(Interval,Steps,type="l")
+    )
+
+top_intvl_steps <- head(intvl_steps[order(intvl_steps$Steps,decreasing=TRUE),],1)
+print(top_intvl_steps)
+top_intvl <- top_intvl_steps[1,1]
+top_steps <- top_intvl_steps[1,2]
+```
+
+- The interval with the maximum average number of steps is: `r top_intvl` with `r top_steps` steps
 
 
 
