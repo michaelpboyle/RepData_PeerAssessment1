@@ -86,6 +86,38 @@ top_steps <- top_intvl_steps[1,2]
 1. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 1. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
+```{r get_missing,echo=TRUE,results="asis"}
+missing <- sum(is.na(activity_df$steps))
+```
+
+- The total number of rows with NAs is: `r missing`
+
+```{r impute_missing,echo=TRUE,results="asis"}
+activity1 <- merge(activity_df,intvl_steps,by = "Interval",all=FALSE)
+## impute_missing <- function() {
+##    for (rownum in 1:length(activity1$steps)) {
+##        if(is.na(activity1$steps[rownum])) {
+##           activity1$Steps2[rownum] <- activity1$Steps[rownum]
+##        } else {
+##           activity1$Steps2[rownum] <- activity1$steps[rownum]
+##        }
+##    }
+## }
+## impute_missing()
+
+## activity1$Steps2 <- with(activity1(impute_missing(steps,Steps))
+activity1$Steps3 <- (abs(is.na(activity1$steps)-1) * activity1$steps)
+## activity1$Steps4 <- (is.na(activity1$steps) * activity1$Steps) +
+##                     (!is.na(activity1$steps) * (activity1$steps2[is.na(activity1$steps)] <- 0))
+activity1$Steps4 <- (is.na(activity1$steps) * activity1$Steps) +
+                    ((!is.na(activity1$steps)) * (is.na(activity1$steps) <- 0))
+
+head(activity1)
+tail(activity1)
+```
+
+- The total number of rows with NAs is: `r missing`
+
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
