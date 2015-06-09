@@ -53,8 +53,8 @@ legend("topright",lty,lwd=4
       )
 ```
 
-- The mean total number of steps taken per day is: `r mean_steps`
-- The median total number of steps taken per day is: `r median_steps`
+- The mean total number of steps taken per day is: `r format(mean_steps,scientific=FALSE)`
+- The median total number of steps taken per day is: `r format(median_steps,scientific=FALSE)`
 
 
 ## What is the average daily activity pattern?
@@ -105,18 +105,40 @@ activity1 <- merge(activity_df,intvl_steps,by = "Interval",all=FALSE)
 ## }
 ## impute_missing()
 
-## activity1$Steps2 <- with(activity1(impute_missing(steps,Steps))
-activity1$Steps3 <- (abs(is.na(activity1$steps)-1) * activity1$steps)
-## activity1$Steps4 <- (is.na(activity1$steps) * activity1$Steps) +
-##                     (!is.na(activity1$steps) * (activity1$steps2[is.na(activity1$steps)] <- 0))
-activity1$Steps4 <- (is.na(activity1$steps) * activity1$Steps) +
-                    ((!is.na(activity1$steps)) * (is.na(activity1$steps) <- 0))
-
+## This is an ugly way to impute the average of each interval, "Steps" from the merged
+## dataframe, to missing "steps" and create "Steps2".  But, it works.  We can pretty it up later.
+## activity1$steps2 <- activity1$steps
+## activity1$steps2[is.na(activity1$steps2)] <- activity1$Steps
+##                     ((!is.na(activity1$steps)) * activity1$steps2)
+activity1$steps2 <- ifelse(is.na(activity1$steps),activity1$Steps,activity1$steps)
 head(activity1)
 tail(activity1)
+
+## Aggregate new dataframe
+daily_steps2 <- aggregate(list(steps2=activity1$steps2)
+                         ,by=list(Date=activity1$date)
+                         ,FUN='sum',na.rm=TRUE)
+
+mean_steps2 <- mean(daily_steps2$steps2)
+median_steps2 <- median(daily_steps2$steps2)
+
+with(daily_steps2
+    ,hist(steps2
+         ,col="yellow"
+         )
+    )
+abline(v = median_steps2, col = "magenta", lwd = 7)
+abline(v = mean_steps2, col = "blue", lwd = 2)
+
+## Add legend
+legend("topright",lty,lwd=c(7,2)
+      ,legend=c("Median","Mean")
+      ,col=c("magenta","blue")
+      )
 ```
 
-- The total number of rows with NAs is: `r missing`
+- The mean total number of steps taken per day is: `r format(mean_steps2,scientific=FALSE)`
+- The median total number of steps taken per day is: `r format(median_steps2,scientific=FALSE)`
 
 
 
@@ -124,3 +146,23 @@ tail(activity1)
 1. For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
 1. Create a new factor variable in the dataset with two LEVELS – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 1. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+
+
+```{r wkend_wkday,echo=TRUE,results="asis"}
+activity1$wkdys <- weekdays(activity1$date)
+activity1$wkend <- factor(activity1$wkdys)
+levels(activity1$wkend) <- list(
+    weekend = c("Saturday","Sunday") ,
+    weekday = c("Monday","Tuesday","Wednesday","Thursday","Friday")
+)
+summary(activity1$wkend)
+table(activity1$wkend)
+str(activity1)
+intvl_steps2 <- aggregate(list(Steps=activity1$steps2)
+                         ,by=list(Wkend=activity1$wkend,Interval=activity1$Interval)
+                         ,FUN='mean',na.rm=TRUE)
+str(intvl_steps2)
+
+library(lattice)
+xyplot(Steps ~ Interval | Wkend, data = intvl_steps2, layout = c(1, 2))
+```
