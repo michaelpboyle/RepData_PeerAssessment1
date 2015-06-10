@@ -53,8 +53,8 @@ legend("topright",lty,lwd=4
       )
 ```
 
-- The mean total number of steps taken per day is: `r format(mean_steps,scientific=FALSE)`
-- The median total number of steps taken per day is: `r format(median_steps,scientific=FALSE)`
+- The mean total number of steps taken per day is: `r mean_steps1`
+- The median total number of steps taken per day is: `r median_steps`
 
 
 ## What is the average daily activity pattern?
@@ -75,12 +75,12 @@ top_intvl <- top_intvl_steps[1,1]
 top_steps <- top_intvl_steps[1,2]
 ```
 
-- The interval with the maximum average number of steps is: `r top_intvl` with `r top_steps` steps
+- The interval with the maximum average number of steps is: `r top_intvl` with `r format(top_steps,nsmall=2,trim=FALSE)` steps
 
 
 
 ## Imputing missing values
-1. NOTEthat there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+1. NOTE that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 1. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 1. Create a new dataset that is equal to the original dataset but with the missing data filled in.
@@ -112,7 +112,8 @@ activity1 <- merge(activity_df,intvl_steps,by = "Interval",all=FALSE)
 ##                     ((!is.na(activity1$steps)) * activity1$steps2)
 activity1$steps2 <- ifelse(is.na(activity1$steps),activity1$Steps,activity1$steps)
 head(activity1)
-tail(activity1)
+t1 <- tail(activity1)
+print(t1)
 
 ## Aggregate new dataframe
 daily_steps2 <- aggregate(list(steps2=activity1$steps2)
@@ -137,8 +138,8 @@ legend("topright",lty,lwd=c(7,2)
       )
 ```
 
-- The mean total number of steps taken per day is: `r format(mean_steps2,scientific=FALSE)`
-- The median total number of steps taken per day is: `r format(median_steps2,scientific=FALSE)`
+- The mean total number of steps taken per day is: `r format(mean_steps2,scientific=FALSE,nsmall=2,trim=FALSE)`
+- The median total number of steps taken per day is: `r format(median_steps2,scientific=FALSE,nsmall=2,trim=FALSE)`
 
 
 
